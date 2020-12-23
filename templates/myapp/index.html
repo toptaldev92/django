@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+    <style>
+        table,
+        th,
+        td {
+            border: 1px solid black;
+        }
+
+        th {
+            text-align: left;
+        }
+    </style>
+
+</head>
+<input type="hidden" value="false" id="flag" />
+<div id="headercontainer"></div>
+<form action="/app/processForm" method="post" id="editForm">
+    {% csrf_token %}
+    <table style="width:30%">
+        <tr>
+            <th>name</th>
+            <th class="email" onauxclick="headerclick(event,2)">email</th>
+        </tr>
+        {% for company, users in result.items %}
+        <tr>
+            <input type="hidden" name="companyid" value="{{company.id}}" />
+            <td onauxclick="toggle(1)"><Input class="inputText" name="companyname" readonly value="{{company.name}}" />
+            </td>
+            <td class="email" onauxclick="headerclick(event,2)"><Input name="email" readonly
+                    value="{{company.email}}" /></td>
+
+        </tr>
+        {% for user in users %}
+        <tr class="company1_user">
+            <input type="hidden" name="userid" value="{{user.id}}" />
+            <td><Input class="inputText" name="username" readonly value="{{user.name}}" /></td>
+            <td class="email" onauxclick="headerclick(event,2)"><Input name="email" readonly value="{{user.email}}" />
+            </td>
+        </tr>
+        {%endfor%}
+        {%endfor%}
+    </table>
+</form>
+</body>
+<script>
+    function toggle(num) {
+        var companyid = ".company" + num + "_user";
+        $(companyid).toggle();
+    }
+    function headerclick(e, id) {
+        if (e && (e.which == 2 || e.button == 4)) {
+            if (id == 2) {
+                $(".email").toggle();
+                $("#headercontainer").append("<button onclick='email()'>email</button>");
+            }
+        }
+
+    }
+    function email() {
+        $(".email").toggle();
+        $("#headercontainer").empty();
+    }
+    $(document).ready(function () {
+        $(".inputText").keypress(function (event) {
+            if (event.keyCode == 13) {
+                var flag = $("#flag").val();
+                if (flag == "false") {
+                    $('input:text').removeAttr("readonly");
+                    $("#flag").val("true");
+                } else if (flag == "true") {
+                    $('input:text').attr("readonly", true);
+                    $("#flag").val("false");
+                    $('#editForm').submit();
+                }
+
+            }
+        });
+    });
+</script>
+
+</html>
